@@ -26,7 +26,7 @@ public void printStats(){
 if (head.word!=null){printWordStatsRec(head);}
 }
 
-public void printWordStatsRec(Word toPrint){
+private void printWordStatsRec(Word toPrint){
 printWordStats(toPrint);
 if (toPrint.next.word!=null) printWordStatsRec(toPrint.next);
 }

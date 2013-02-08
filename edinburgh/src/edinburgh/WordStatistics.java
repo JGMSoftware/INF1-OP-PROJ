@@ -11,12 +11,15 @@ public void addWord (String newWord, Word current){
 if (current.word==null) {
   current.set(newWord);
   current.next=new Word();
+  totalWords++;
   }
  
-if (newWord.equals(current.word)) {current.count++;}
+if (newWord.equals(current.word)) {
+  current.count++;
+  totalWords++;}
 else {addWord(newWord, current.next);}
 
-totalWords++;
+
 }
 
 public void printStats(){

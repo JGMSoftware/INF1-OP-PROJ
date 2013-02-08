@@ -1,0 +1,25 @@
+
+public class WordCounter{
+
+
+public static void main (String[] args){
+// input string goes here
+countWords("Hello World, hello Hello, oh my! So many of you");
+}
+
+
+
+public static void countWords (String str){
+WordStatistics stats = new WordStatistics();
+
+String[] words = str.split(" "); //split string into words
+for (int i=0;i<words.length;i++){
+ String strippedWord = (words[i].replaceAll("\\W", ""));//removes all non-alphanumeric characters. 
+ //Need to decapitalize the "strippedWord" here as well
+ stats.addWord (strippedWord, stats.head);}
+ stats.printStats();
+
+}
+
+
+}

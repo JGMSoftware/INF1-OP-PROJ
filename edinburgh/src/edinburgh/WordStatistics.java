@@ -1,6 +1,7 @@
 public class WordStatistics {
 Word head=new Word();
 int totalWords=0;
+String statistics;
 
 public WordStatistics(){
 head=new Word ();
@@ -33,6 +34,17 @@ if (toPrint.next.word!=null) printWordStatsRec(toPrint.next);
 
 public void printWordStats(Word toPrint){
 System.out.println("\""+toPrint.word+"\"" + " was used "+toPrint.count+ " times");
+}
+
+public String returnStats(){
+printWordStats2(head);
+return statistics;
+}
+
+public void printWordStats2(Word toPrint){
+if (toPrint.word != null) statistics=statistics+"\n "+toPrint.word + " used "+ toPrint.count + " times";
+if(toPrint.next !=null) printWordStats2(toPrint.next);
+
 }
 
 }

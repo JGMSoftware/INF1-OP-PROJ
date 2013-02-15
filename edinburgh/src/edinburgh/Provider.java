@@ -1,3 +1,5 @@
+package edinburgh;
+
 import java.io.*;
 import java.net.*;
 public class Provider{

@@ -1,3 +1,5 @@
+package edinburgh;
+
 public class Word{
 int count;
 String word;

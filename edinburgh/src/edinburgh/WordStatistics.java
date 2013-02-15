@@ -1,3 +1,5 @@
+package edinburgh;
+
 public class WordStatistics {
 Word head=new Word();
 int totalWords=0;

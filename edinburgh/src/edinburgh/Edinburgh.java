@@ -17,6 +17,6 @@ public class Edinburgh {
         // TODO code application logic here
         System.out.println("Hello World!");
         System.out.println("Hello World");
-        System.out.println("Hi World!")
+        System.out.println("Hi World!");
     }
 }

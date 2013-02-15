@@ -25,7 +25,7 @@ public class Provider{
 			do{
 				try{
 					message = (String)in.readObject();
-					String statistics = countWords(message);
+					String statistics = WordCounter.countWords(message);
 					System.out.println("client>" + message);
 					if (message.equals("bye"))
 						sendMessage(statistics);

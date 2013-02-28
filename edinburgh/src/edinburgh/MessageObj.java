@@ -67,7 +67,5 @@ public class MessageObj {
     
     public void setSenderName(String a){
         senderName = a;
-    }
-   
-         
+    }    
 }

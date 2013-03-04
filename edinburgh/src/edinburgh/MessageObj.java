@@ -1,15 +1,14 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package edinburgh;
+* To change this template, choose Tools | Templates
+* and open the template in the editor.
+*/
 
 import java.io.Serializable;
 
 /**
- *
- * @author Jamie
- */
+*
+* @author Jamie
+*/
 
 //Implements serializable
 public class MessageObj {
@@ -17,9 +16,12 @@ public class MessageObj {
         //0: Asking for a list of currently connected users
         //1: Sending a text message
         //2: Notifying the server of a logout
+    	//3: Set username
     static final int USERLIST = 0;
     static final int MSG = 1;
     static final int LOGOUT = 2;
+    static final int SETNAME = 3;
+    
     
     //Declare the variables used in the message object
     private int msgType;
@@ -67,5 +69,10 @@ public class MessageObj {
     
     public void setSenderName(String a){
         senderName = a;
-    }    
+    }
+    
+    public String makeString(){
+    	String message = timestamp + "[" + senderName + "] " + msgText ;
+    	return message;
+    }
 }

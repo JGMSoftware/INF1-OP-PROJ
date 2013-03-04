@@ -9,10 +9,17 @@ import java.util.*;
 public class ILServer implements Runnable {
     
     private static List<InetAddress> users = new ArrayList<>();
-    private static InetAddress latestConnector;
+    private Socket socket;
+    private InetAddress address;
+   
+    public ILServer(Socket socket, InetAddress address){
+        this.socket = socket;
+        this.address = address;
+    }
     
     public void run(){
-        InetAddress clientId = latestConnector;
+        
+        
         
         /* While the user is logged on
         
@@ -23,12 +30,18 @@ public class ILServer implements Runnable {
             Iterate over the list of users to send the string with the message to everyone
          */
         
+        broadcast(makeString(message)); 
+        
         //Execute when the user terminates the connection
         remover: for (int k=0; k<users.size(); k++)
             if (users.get(k) == clientId){
                 users.remove(k);
                 break remover;
             }
+    }
+    
+    private static synchronized void broadcast(String s){
+        //Iterate over users and send s
     }
     
     private static String makeString(MessageObj msg){
@@ -50,11 +63,10 @@ public class ILServer implements Runnable {
                
                Socket acceptSocket = socket.accept();
                
-               latestConnector = acceptSocket.getInetAddress();
-               Thread t = new Thread (new ILServer());
+               Thread t = new Thread (new ILServer( acceptSocket, acceptSocket.getInetAddress()));
                t.start();
                
-               users.add(latestConnector);
+               users.add(acceptSocket.getInetAddress());
                
                //Writes a message to the terminal telling the person running the server about a new connection
                created++;

@@ -4,11 +4,13 @@ package edinburgh;
 public class WordCounter {
 
 
-    /*public static void main (String[] args){
+    public static void main (String[] args){
      String x =countWords("Hello World, hello Hello, oh my! So many of you");
+     int y = wordCount("Hello World, hello Hello, oh my! So many of you");
      System.out.println(x);
+     System.out.println(y);
      }
-     */
+     
     public static String countWords(String str) {
         WordStatistics stats = new WordStatistics();
 
@@ -20,5 +22,10 @@ public class WordCounter {
         }
         return stats.returnStats();
 
+    }
+    
+    public static int wordCount(String str){
+        String[] words = str.split(" ");
+        return words.length;
     }
 }

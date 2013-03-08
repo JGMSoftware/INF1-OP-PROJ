@@ -1,27 +1,25 @@
 package edinburgh;
 
-public class Word{
-int count;
-String word;
-Word next;
+public class Word {
 
-public Word (String newWord){
-count =0;
-word=newWord;
-next=null;
-}
+    int count;
+    String word;
+    Word next;
 
-public void set(String str){
-count=0;
-word=str;
-}
+    public Word(String newWord) {
+        count = 0;
+        word = newWord;
+        next = null;
+    }
 
-public Word (){
-count =0;
-word=null;
-next=null;
-}
+    public void set(String str) {
+        count = 0;
+        word = str;
+    }
 
-
-
+    public Word() {
+        count = 0;
+        word = null;
+        next = null;
+    }
 }

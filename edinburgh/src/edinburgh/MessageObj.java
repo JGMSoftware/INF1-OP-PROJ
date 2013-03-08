@@ -1,3 +1,5 @@
+package edinburgh;
+
 /*
 * To change this template, choose Tools | Templates
 * and open the template in the editor.
@@ -11,7 +13,7 @@ import java.io.Serializable;
 */
 
 //Implements serializable
-public class MessageObj {
+public class MessageObj implements Serializable{
     //A "code" that denotes whether the message/packet is:
         //0: Asking for a list of currently connected users
         //1: Sending a text message

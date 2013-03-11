@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 public class ILServer implements Runnable {
 
     private static List users = new ArrayList();
-    static ObjectOutputStream out;
+    ObjectOutputStream out;
     ObjectInputStream in;
     private Socket connection;
     private InetAddress address;
@@ -25,42 +25,35 @@ public class ILServer implements Runnable {
             out = new ObjectOutputStream(connection.getOutputStream());
             out.flush();
             in = new ObjectInputStream(connection.getInputStream());
-            //4. The two parts communicate via the input and output streams
+
             try {
                 MessageObj message;
                 message = (MessageObj) (in.readObject());
                 //String statistics = WordCounter.countWords(message);
-                takeAction(message, address);
+                takeAction(message, connection);
+                
+                if (message.getMsgType() == 2){
+                    connection.close();
+                    in.close();
+                    out.close();
+                }
                 // sendMessage(statistics);
             } catch (ClassNotFoundException classnot) {
                 System.err.println("Data received in unknown format");
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             } 
-    
-            finally {
-                //4: Closing connection
-                try {
-                    in.close();
-                    out.close();
-                    connection.close();
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
-            }
-
         } catch (IOException ex) {
             Logger.getLogger(ILServer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    private synchronized void takeAction(MessageObj mess, InetAddress address) {
+    private synchronized void takeAction(MessageObj mess, Socket uSocket) {
         switch (mess.getMsgType()) {
             case 1:
                 sendMessage(mess.makeString());
-                System.out.println(mess.makeString());
             case 2:
-                removeUser(address);
+                removeUser(uSocket);
         }
     }
 
@@ -77,17 +70,15 @@ public class ILServer implements Runnable {
 
     }
 
-    private static void removeUser(InetAddress address) {
+    private void removeUser(Socket socket) {
         for (int i = 0; i < users.size(); i++) {
-            if (address == users.get(i)) {
+            if (socket == users.get(i)) {
                 users.remove(i);
             }
         }
     }
 
     public static void main(String[] args) {
-        //This list will be used to store the addresses of all users
-
         int created = 0;
 
         //Try to create a network socket that the clients can connect to
@@ -101,7 +92,6 @@ public class ILServer implements Runnable {
 
                 Socket acceptSocket = socket.accept();
 
-                // latestConnector = acceptSocket.getInetAddress();
                 Thread t = new Thread(new ILServer((acceptSocket), acceptSocket.getInetAddress()));
                 t.start();
 

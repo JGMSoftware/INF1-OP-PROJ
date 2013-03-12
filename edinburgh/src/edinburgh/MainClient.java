@@ -13,6 +13,8 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -31,6 +33,7 @@ public class MainClient extends javax.swing.JFrame {
     private static String username = "";
     private String timestamp;
     private Calendar time;
+    private static MessageObj incoming;
 
     /**
      * Creates new form GUI
@@ -229,14 +232,33 @@ public class MainClient extends javax.swing.JFrame {
 
         //Open a new socket to the server
         connect();
+        listen();
 
     }
-
+    
+    private static void listen(){
+        try {
+            in = new ObjectInputStream(requestSocket.getInputStream());
+            while(true){
+                try {
+                    incoming = (MessageObj) in.readObject();
+                    chatText.append(incoming.makeString() + "\n");
+                } catch (ClassNotFoundException ex) {
+                    Logger.getLogger(MainClient.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(MainClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+    
     //Method to connect to the server
     public static void connect() {
         try {
             //1. creating a socket to connect to the server
-            requestSocket = new Socket("localhost", 2004);
+            requestSocket = new Socket("ledin", 2004);
             System.out.println("Connected to localhost in port 2004");
             //2. get Input and Output streams
             out = new ObjectOutputStream(requestSocket.getOutputStream());
@@ -265,7 +287,7 @@ public class MainClient extends javax.swing.JFrame {
 		try{
 			out.writeObject(msg);
 			out.flush();
-			chatText.append(msg.makeString() + "\n");
+			//chatText.append(msg.makeString() + "\n");
 		}
 		catch(IOException ioException){
 			ioException.printStackTrace();
@@ -273,7 +295,7 @@ public class MainClient extends javax.swing.JFrame {
 	}
     // Variables declaration - do not modify                     
     private javax.swing.JMenu appPreferences;
-    private javax.swing.JTextArea chatText;
+    private static javax.swing.JTextArea chatText;
     private javax.swing.JMenuItem exitApp;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;

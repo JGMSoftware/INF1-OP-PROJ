@@ -25,7 +25,9 @@ public class ILServer implements Runnable {
             out = new ObjectOutputStream(connection.getOutputStream());
             out.flush();
             in = new ObjectInputStream(connection.getInputStream());
-
+            boolean going = true;
+            
+            while(going){
             try {
                 MessageObj message;
                 message = (MessageObj) (in.readObject());
@@ -36,28 +38,35 @@ public class ILServer implements Runnable {
                     connection.close();
                     in.close();
                     out.close();
+                    going = false;
+                    
                 }
                 // sendMessage(statistics);
-            } catch (ClassNotFoundException classnot) {
-                System.err.println("Data received in unknown format");
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
             } 
+            catch (ClassNotFoundException classnot) {
+                System.err.println("Data received in unknown format");
+            } 
+            catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
         } catch (IOException ex) {
             Logger.getLogger(ILServer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     private synchronized void takeAction(MessageObj mess, Socket uSocket) {
+        System.out.println(mess.makeString());
+        
         switch (mess.getMsgType()) {
             case 1:
-                sendMessage(mess.makeString());
+                sendMessage(mess);
             case 2:
                 removeUser(uSocket);
         }
     }
 
-    private void sendMessage(String msg) {
+    private void sendMessage(MessageObj msg) {
         for (int i = 0; i < users.size(); i++) {
             try {
                 ObjectOutputStream output = new ObjectOutputStream(((Socket) users.get(i)).getOutputStream());

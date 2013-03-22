@@ -15,63 +15,52 @@ public class ILServer implements Runnable {
     private Socket connection;
     private InetAddress address;
 
-    public ILServer(Socket socket, InetAddress address) {
+    public ILServer(Socket socket, InetAddress address) throws IOException {
         this.connection = socket;
-        this.address = address;
+        this.address = socket.getInetAddress();
+        this.out = new ObjectOutputStream(connection.getOutputStream());
     }
 
     public void run() {
-        try {
-            out = new ObjectOutputStream(connection.getOutputStream());
-            out.flush();
+        try { 
             in = new ObjectInputStream(connection.getInputStream());
-            boolean going = true;
-            
-            while(going){
-            try {
-                MessageObj message;
-                message = (MessageObj) (in.readObject());
-                //String statistics = WordCounter.countWords(message);
-                takeAction(message, connection);
-                
-                if (message.getMsgType() == 2){
-                    connection.close();
-                    in.close();
-                    out.close();
-                    going = false;
-                    
-                }
-                // sendMessage(statistics);
-            } 
-            catch (ClassNotFoundException classnot) {
-                System.err.println("Data received in unknown format");
-            } 
-            catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
-        }
         } catch (IOException ex) {
             Logger.getLogger(ILServer.class.getName()).log(Level.SEVERE, null, ex);
+            return;
+        }
+
+        boolean going = true;
+        MessageObj incoming;
+
+        while (going) {
+            try {
+                incoming = (MessageObj) in.readObject();
+                takeAction(incoming);
+            } catch (IOException ex) {
+                Logger.getLogger(ILServer.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(ILServer.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 
-    private synchronized void takeAction(MessageObj mess, Socket uSocket) {
-        System.out.println(mess.makeString());
-        
+    private synchronized void takeAction(MessageObj mess) {
+
+
         switch (mess.getMsgType()) {
             case 1:
                 sendMessage(mess);
-            case 2:
-                removeUser(uSocket);
+//            case 2:
+//                removeUser(uSocket);
         }
     }
 
     private void sendMessage(MessageObj msg) {
         for (int i = 0; i < users.size(); i++) {
             try {
-                ObjectOutputStream output = new ObjectOutputStream(((Socket) users.get(i)).getOutputStream());
-                output.writeObject(msg);
-                out.flush();
+                ((ILServer) users.get(i)).out.writeObject(msg);
+                ((ILServer) users.get(i)).out.flush();
+                System.out.println(msg.makeString());
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
@@ -101,10 +90,11 @@ public class ILServer implements Runnable {
 
                 Socket acceptSocket = socket.accept();
 
-                Thread t = new Thread(new ILServer((acceptSocket), acceptSocket.getInetAddress()));
+                ILServer server = new ILServer((acceptSocket), acceptSocket.getInetAddress());
+                Thread t = new Thread(server);
                 t.start();
 
-                users.add(acceptSocket);
+                users.add(server);
 
                 //Writes a message to the terminal telling the person running the server about a new connection
                 created++;

@@ -124,64 +124,67 @@ public class MainClient extends javax.swing.JFrame {
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 483, Short.MAX_VALUE)
-                .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(sendButton))
-                .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(titleLbl)
-                .addGroup(layout.createSequentialGroup()
-                .addComponent(wordCountLbl)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(wordCountNum)))
-                .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap()));
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 483, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(sendButton))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(titleLbl)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(wordCountLbl)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(wordCountNum)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
         layout.setVerticalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addComponent(titleLbl)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                .addComponent(jScrollPane2)
-                .addComponent(sendButton, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2)
+                    .addComponent(sendButton, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(wordCountLbl)
-                .addComponent(wordCountNum))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
+                    .addComponent(wordCountLbl)
+                    .addComponent(wordCountNum))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
 
         pack();
     }// </editor-fold>                        
 
     //Update the word count every time a new word is entered into the text box
-    private void messageTextBoxKeyPressed(java.awt.event.KeyEvent evt) {
+    private void messageTextBoxKeyPressed(java.awt.event.KeyEvent evt) {                                          
         String message = messageTextBox.getText();
-        updateWordCount();
-    }
+        int wordCount = WordCounter.wordCount(message);
+        wordCountNum.setText(wordCount + "");
+    }                                         
 
-    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {                                           
         JOptionPane.showMessageDialog(this, "Not yet implemented.");
-    }
+    }                                          
 
-    private void exitAppActionPerformed(java.awt.event.ActionEvent evt) {
+    private void exitAppActionPerformed(java.awt.event.ActionEvent evt) {                                        
         //Close all streams and sockets
         disconnect();
         //Send a disconnect message to the server
-        MessageObj disconnect = new MessageObj(2, null, null, null);
+        MessageObj disconnect = new MessageObj(2,null, null, null);
         sendMessage(disconnect);
         //Exit the app
         System.exit(0);
-    }
+    }                                       
 
-    private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {                                           
         time = Calendar.getInstance();
         timestamp = timeFormat.format(time.getTime());
         //Create a message from user details and message text
@@ -189,18 +192,12 @@ public class MainClient extends javax.swing.JFrame {
         //Send the message
         sendMessage(message);
         messageTextBox.setText("");
-        wordCountNum.setText("0");
-    }
-
-    private void updateWordCount() {
-        int wordCount = WordCounter.wordCount(messageTextBox.getText());
-        wordCountNum.setText(wordCount + "");
-    }
+    }                                          
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String args[]) throws IOException {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -230,34 +227,29 @@ public class MainClient extends javax.swing.JFrame {
         //Prompt for username until at lest one character is entered
         username = JOptionPane.showInputDialog("Enter username:");
         int asked = 1;
-        while (username.equals("")) {
+        while(username.equals(""))
             username = JOptionPane.showInputDialog("You must choose a username!");
-        }
 
         //Open a new socket to the server
         connect();
         listen();
 
     }
+    
+    private static void listen() throws IOException{
 
-    private static void listen() {
-        try {
-            in = new ObjectInputStream(requestSocket.getInputStream());
-            while (true) {
+            while(true){
                 try {
                     incoming = (MessageObj) in.readObject();
                     chatText.append(incoming.makeString() + "\n");
                 } catch (ClassNotFoundException ex) {
                     Logger.getLogger(MainClient.class.getName()).log(Level.SEVERE, null, ex);
                 }
-
+                
             }
-        } catch (IOException ex) {
-            Logger.getLogger(MainClient.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
+        
     }
-
+    
     //Method to connect to the server
     public static void connect() {
         try {
@@ -285,16 +277,18 @@ public class MainClient extends javax.swing.JFrame {
             ioException.printStackTrace();
         }
     }
-
-    public void sendMessage(MessageObj msg) {
-        try {
-            out.writeObject(msg);
-            out.flush();
-            //chatText.append(msg.makeString() + "\n");
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
-    }
+    
+    public void sendMessage(MessageObj msg)
+    {
+		try{
+			out.writeObject(msg);
+			out.flush();
+			//chatText.append(msg.makeString() + "\n");
+		}
+		catch(IOException ioException){
+			ioException.printStackTrace();
+		}
+	}
     // Variables declaration - do not modify                     
     private javax.swing.JMenu appPreferences;
     private static javax.swing.JTextArea chatText;

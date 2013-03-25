@@ -15,6 +15,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
  *
@@ -40,6 +42,12 @@ public class MainClient extends javax.swing.JFrame {
      */
     public MainClient() {
         initComponents();
+        chatText.setEditable(false);
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                closeWindow();
+            }
+        });
     }
 
     /**
@@ -62,6 +70,7 @@ public class MainClient extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         exitApp = new javax.swing.JMenuItem();
+        changeNameApp = new javax.swing.JMenuItem();
         appPreferences = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
 
@@ -105,6 +114,14 @@ public class MainClient extends javax.swing.JFrame {
         });
         jMenu1.add(exitApp);
 
+        changeNameApp.setText("Change username");
+        changeNameApp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                changeNameAppActionPerformed(evt);
+            }
+        });
+        jMenu1.add(changeNameApp);
+
         jMenuBar1.add(jMenu1);
 
         appPreferences.setText("Edit");
@@ -124,67 +141,76 @@ public class MainClient extends javax.swing.JFrame {
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 483, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(sendButton))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(titleLbl)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(wordCountLbl)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(wordCountNum)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 483, Short.MAX_VALUE)
+                .addGroup(layout.createSequentialGroup()
+                .addComponent(jScrollPane2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(sendButton))
+                .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(titleLbl)
+                .addGroup(layout.createSequentialGroup()
+                .addComponent(wordCountLbl)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(wordCountNum)))
+                .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap()));
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
                 .addComponent(titleLbl)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane2)
-                    .addComponent(sendButton, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE))
+                .addComponent(jScrollPane2)
+                .addComponent(sendButton, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(wordCountLbl)
-                    .addComponent(wordCountNum))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+                .addComponent(wordCountLbl)
+                .addComponent(wordCountNum))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
 
         pack();
     }// </editor-fold>                        
 
     //Update the word count every time a new word is entered into the text box
-    private void messageTextBoxKeyPressed(java.awt.event.KeyEvent evt) {                                          
+    private void messageTextBoxKeyPressed(java.awt.event.KeyEvent evt) {
         String message = messageTextBox.getText();
         int wordCount = WordCounter.wordCount(message);
         wordCountNum.setText(wordCount + "");
-    }                                         
+    }
 
-    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {                                           
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {
         JOptionPane.showMessageDialog(this, "Not yet implemented.");
-    }                                          
+    }
 
-    private void exitAppActionPerformed(java.awt.event.ActionEvent evt) {                                        
-        //Close all streams and sockets
-        disconnect();
+    private void exitAppActionPerformed(java.awt.event.ActionEvent evt) {
+        closeWindow();
+    }
+
+    private void changeNameAppActionPerformed(java.awt.event.ActionEvent evt) {
+        String newName;
+        newName = JOptionPane.showInputDialog("Choose a new username");
+        while (newName.equals("")) {
+            newName = JOptionPane.showInputDialog("You must enter a name!");
+        }
+        username = newName;
+    }
+
+    private void closeWindow() {
         //Send a disconnect message to the server
-        MessageObj disconnect = new MessageObj(2,null, null, null);
+        MessageObj disconnect = new MessageObj(2, null, null, null);
         sendMessage(disconnect);
         //Exit the app
         System.exit(0);
-    }                                       
+    }
 
-    private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {                                           
+    private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {
         time = Calendar.getInstance();
         timestamp = timeFormat.format(time.getTime());
         //Create a message from user details and message text
@@ -192,7 +218,7 @@ public class MainClient extends javax.swing.JFrame {
         //Send the message
         sendMessage(message);
         messageTextBox.setText("");
-    }                                          
+    }
 
     /**
      * @param args the command line arguments
@@ -227,29 +253,30 @@ public class MainClient extends javax.swing.JFrame {
         //Prompt for username until at lest one character is entered
         username = JOptionPane.showInputDialog("Enter username:");
         int asked = 1;
-        while(username.equals(""))
+        while (username.equals("")) {
             username = JOptionPane.showInputDialog("You must choose a username!");
+        }
 
         //Open a new socket to the server
         connect();
         listen();
 
     }
-    
-    private static void listen() throws IOException{
 
-            while(true){
-                try {
-                    incoming = (MessageObj) in.readObject();
-                    chatText.append(incoming.makeString() + "\n");
-                } catch (ClassNotFoundException ex) {
-                    Logger.getLogger(MainClient.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                
+    private static void listen() throws IOException {
+
+        while (true) {
+            try {
+                incoming = (MessageObj) in.readObject();
+                chatText.append(incoming.makeString() + "\n");
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(MainClient.class.getName()).log(Level.SEVERE, null, ex);
             }
-        
+
+        }
+
     }
-    
+
     //Method to connect to the server
     public static void connect() {
         try {
@@ -277,22 +304,21 @@ public class MainClient extends javax.swing.JFrame {
             ioException.printStackTrace();
         }
     }
-    
-    public void sendMessage(MessageObj msg)
-    {
-		try{
-			out.writeObject(msg);
-			out.flush();
-			//chatText.append(msg.makeString() + "\n");
-		}
-		catch(IOException ioException){
-			ioException.printStackTrace();
-		}
-	}
+
+    public void sendMessage(MessageObj msg) {
+        try {
+            out.writeObject(msg);
+            out.flush();
+            //chatText.append(msg.makeString() + "\n");
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+    }
     // Variables declaration - do not modify                     
     private javax.swing.JMenu appPreferences;
     private static javax.swing.JTextArea chatText;
     private javax.swing.JMenuItem exitApp;
+    private javax.swing.JMenuItem changeNameApp;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem2;

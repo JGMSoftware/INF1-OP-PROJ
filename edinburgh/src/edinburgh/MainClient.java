@@ -33,8 +33,8 @@ public class MainClient extends javax.swing.JFrame {
     public Boolean isConnected;
     private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     private static String username = "";
-    private String timestamp;
-    private Calendar time;
+    private static String timestamp;
+    private static Calendar time;
     private static MessageObj incoming;
 
     /**
@@ -43,6 +43,7 @@ public class MainClient extends javax.swing.JFrame {
     public MainClient() {
         initComponents();
         chatText.setEditable(false);
+        messageTextBox.requestFocus();
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 closeWindow();
@@ -200,6 +201,7 @@ public class MainClient extends javax.swing.JFrame {
             newName = JOptionPane.showInputDialog("You must enter a name!");
         }
         username = newName;
+        titleLbl.setText("Chat Client" + "  -  " + username);
     }
 
     private void closeWindow() {
@@ -287,6 +289,9 @@ public class MainClient extends javax.swing.JFrame {
             out = new ObjectOutputStream(requestSocket.getOutputStream());
             out.flush();
             in = new ObjectInputStream(requestSocket.getInputStream());
+            MessageObj loginMsg = new MessageObj(1, username + " has just logged in", "timestamp", "System");
+            
+            out.writeObject(loginMsg);
 
         } catch (UnknownHostException unknownHost) {
             System.err.println("You are trying to connect to an unknown host!");

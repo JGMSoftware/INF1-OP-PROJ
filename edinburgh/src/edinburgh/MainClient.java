@@ -71,6 +71,7 @@ public class MainClient extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         exitApp = new javax.swing.JMenuItem();
+        getUserApp = new javax.swing.JMenuItem();
         changeNameApp = new javax.swing.JMenuItem();
         appPreferences = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
@@ -107,6 +108,8 @@ public class MainClient extends javax.swing.JFrame {
 
         jMenu1.setText("File");
 
+
+
         exitApp.setText("Exit");
         exitApp.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -122,6 +125,14 @@ public class MainClient extends javax.swing.JFrame {
             }
         });
         jMenu1.add(changeNameApp);
+        getUserApp.setText("Who is in?");
+
+        getUserApp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                getUserAppActionPerformed(evt);
+            }
+        });
+        jMenu1.add(getUserApp);
 
         jMenuBar1.add(jMenu1);
 
@@ -194,6 +205,10 @@ public class MainClient extends javax.swing.JFrame {
         closeWindow();
     }
 
+    private void getUserAppActionPerformed(java.awt.event.ActionEvent evt) {
+        getUsers();
+    }
+
     private void changeNameAppActionPerformed(java.awt.event.ActionEvent evt) {
         String newName;
         newName = JOptionPane.showInputDialog("Choose a new username");
@@ -202,6 +217,7 @@ public class MainClient extends javax.swing.JFrame {
         }
         username = newName;
         titleLbl.setText("Chat Client" + "  -  " + username);
+        changeName(username);
     }
 
     private void closeWindow() {
@@ -261,8 +277,24 @@ public class MainClient extends javax.swing.JFrame {
 
         //Open a new socket to the server
         connect();
+        login();
         listen();
 
+    }
+
+    private void changeName(String username) {
+        MessageObj namechanger = new MessageObj(3, null, null, username);
+        sendMessage(namechanger);
+    }
+
+    private void getUsers() {
+        MessageObj nameRequester = new MessageObj(0, null, null, null);
+        sendMessage(nameRequester);
+    }
+
+    private static void login() {
+        MessageObj loginMsg = new MessageObj(4, null, null, username);
+        sendMessage(loginMsg);
     }
 
     private static void listen() throws IOException {
@@ -289,9 +321,6 @@ public class MainClient extends javax.swing.JFrame {
             out = new ObjectOutputStream(requestSocket.getOutputStream());
             out.flush();
             in = new ObjectInputStream(requestSocket.getInputStream());
-            MessageObj loginMsg = new MessageObj(1, username + " has just logged in", "timestamp", "System");
-            
-            out.writeObject(loginMsg);
 
         } catch (UnknownHostException unknownHost) {
             System.err.println("You are trying to connect to an unknown host!");
@@ -310,7 +339,7 @@ public class MainClient extends javax.swing.JFrame {
         }
     }
 
-    public void sendMessage(MessageObj msg) {
+    public static void sendMessage(MessageObj msg) {
         try {
             out.writeObject(msg);
             out.flush();
@@ -323,6 +352,7 @@ public class MainClient extends javax.swing.JFrame {
     private javax.swing.JMenu appPreferences;
     private static javax.swing.JTextArea chatText;
     private javax.swing.JMenuItem exitApp;
+    private javax.swing.JMenuItem getUserApp;
     private javax.swing.JMenuItem changeNameApp;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;

@@ -18,11 +18,13 @@ public class MessageObj implements Serializable{
         //0: Asking for a list of currently connected users
         //1: Sending a text message
         //2: Notifying the server of a logout
-    	//3: Set username
+        //3: Set username
+        //4: Message sent when logging in
     static final int USERLIST = 0;
     static final int MSG = 1;
     static final int LOGOUT = 2;
     static final int SETNAME = 3;
+    static final int LOGIN = 4;
     
     
     //Declare the variables used in the message object

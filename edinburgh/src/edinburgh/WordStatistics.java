@@ -28,6 +28,17 @@ public class WordStatistics {
 
     }
 
+     public void addString(String str) {
+      
+        String[] words = str.split(" "); //split string into words
+        for (int i = 0; i < words.length; i++) {
+            String strippedWord = (words[i].replaceAll("\\W", ""));//removes all non-alphanumeric characters.
+            //Need to decapitalize the "strippedWord" here as well
+            addWord(strippedWord, head);
+        }
+     }
+     
+    
     public void printStats() {
         if (head.word != null) {
             printWordStatsRec(head);

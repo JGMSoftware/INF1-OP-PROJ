@@ -17,6 +17,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.HashMap;
+import java.util.List;
 import javax.swing.JRootPane;
 
 /**
@@ -37,7 +39,9 @@ public class MainClient extends javax.swing.JFrame {
     private static String timestamp;
     private static Calendar time;
     private static MessageObj incoming;
-    
+    private static String remoteAddress = "";
+    private static int messagesSent = 0;
+    private boolean autoCorrect = true;
 
     /**
      * Creates new form GUI
@@ -77,6 +81,7 @@ public class MainClient extends javax.swing.JFrame {
         exitApp = new javax.swing.JMenuItem();
         getUserApp = new javax.swing.JMenuItem();
         changeNameApp = new javax.swing.JMenuItem();
+        autoCorrectApp = new javax.swing.JMenuItem();
         appPreferences = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
 
@@ -129,8 +134,16 @@ public class MainClient extends javax.swing.JFrame {
             }
         });
         jMenu1.add(changeNameApp);
-        getUserApp.setText("Who is in?");
 
+        autoCorrectApp.setText("Auto correct");
+        autoCorrectApp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                autoCorrectAppActionPerformed(evt);
+            }
+        });
+        jMenu1.add(autoCorrectApp);
+
+        getUserApp.setText("Who is in?");
         getUserApp.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 getUserAppActionPerformed(evt);
@@ -224,6 +237,17 @@ public class MainClient extends javax.swing.JFrame {
         changeName(username);
     }
 
+    private void autoCorrectAppActionPerformed(java.awt.event.ActionEvent evt) {
+        int response = JOptionPane.showConfirmDialog(this, "Would you like to run the client with autocorrect mode active?");
+
+        if (response == 0) {
+            autoCorrect = true;
+        }
+        if (response == 1) {
+            autoCorrect = false;
+        }
+    }
+
     private void closeWindow() {
         //Send a disconnect message to the server
         MessageObj disconnect = new MessageObj(2, null, null, null);
@@ -237,7 +261,11 @@ public class MainClient extends javax.swing.JFrame {
         timestamp = timeFormat.format(time.getTime());
         //Create a message from user details and message text
         MessageObj message = new MessageObj(1, messageTextBox.getText(), timestamp, username);
-        //Send the message
+
+        if (autoCorrect) {
+            message.setMsgText(correct(message.getMsgText()));
+        }
+
         sendMessage(message);
         messageTextBox.setText("");
     }
@@ -272,6 +300,9 @@ public class MainClient extends javax.swing.JFrame {
             }
         });
 
+        //Prompt for the name of the computer where the server is running
+        remoteAddress = JOptionPane.showInputDialog("Enter the name of the computer you want to connect to");
+
         //Prompt for username until at lest one character is entered
         username = JOptionPane.showInputDialog("Enter username:");
         int asked = 1;
@@ -280,10 +311,28 @@ public class MainClient extends javax.swing.JFrame {
         }
 
         //Open a new socket to the server
+        setMap();
         connect();
         login();
         listen();
 
+    }
+
+    private String correct(String msg) {
+        for (String s : abbreviations) {
+            msg = msg.replace(s, replacer.get(s));
+        }
+
+        msg = capitalise(msg);
+        return msg;
+    }
+
+    private String capitalise(String msg) {
+        if (Character.isLetter(msg.charAt(0)) && Character.isLowerCase(msg.charAt(0))) {
+            msg = Character.toUpperCase(msg.charAt(0)) + msg.substring(1);
+        }
+
+        return msg;
     }
 
     private void changeName(String username) {
@@ -319,7 +368,7 @@ public class MainClient extends javax.swing.JFrame {
     public static void connect() {
         try {
             //1. creating a socket to connect to the server
-            requestSocket = new Socket("localhost", 2004);
+            requestSocket = new Socket(remoteAddress, 2004);
             System.out.println("Connected to localhost in port 2004");
             //2. get Input and Output streams
             out = new ObjectOutputStream(requestSocket.getOutputStream());
@@ -358,6 +407,7 @@ public class MainClient extends javax.swing.JFrame {
     private javax.swing.JMenuItem exitApp;
     private javax.swing.JMenuItem getUserApp;
     private javax.swing.JMenuItem changeNameApp;
+    private javax.swing.JMenuItem autoCorrectApp;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem2;
@@ -368,5 +418,41 @@ public class MainClient extends javax.swing.JFrame {
     private javax.swing.JLabel titleLbl;
     private javax.swing.JLabel wordCountLbl;
     private javax.swing.JLabel wordCountNum;
-    // End of variables declaration                                     
+    // End of variables declaration
+    
+    private String[] abbreviations = {"thx", "btw", "omg", "afk", "asap", "msg",
+                                      " u ", " u.", " u?", " u!", " u,",
+                                      " i ", " i.", " i?", " i!", " i,", " im ",
+                                      " r ", " r.", " r?", " r!", " r,",
+    };
+    
+    private static HashMap<String, String> replacer = new HashMap();
+
+    private static void setMap() {
+        replacer.put("thx", "thanks");
+        replacer.put("btw", "by the way");
+        replacer.put("omg", "oh my god");
+        replacer.put("afk", "away from keyboard");
+        replacer.put("asap", "as soon as possible");
+        replacer.put("msg", "message");
+        
+        replacer.put(" u ", " you ");
+        replacer.put(" u.", " you.");
+        replacer.put(" u?", " you?");
+        replacer.put(" u!", " you!");
+        replacer.put(" u,", " you,");
+        
+        replacer.put(" i ", " I ");
+        replacer.put(" i.", " I.");
+        replacer.put(" i?", " I?");
+        replacer.put(" i!", " I!");
+        replacer.put(" i,", " I,");
+        replacer.put(" im ", " I'm ");
+        
+        replacer.put(" r ", " are ");
+        replacer.put(" r.", " are.");
+        replacer.put(" r?", " are?");
+        replacer.put(" r!", " are!");
+        replacer.put(" r,", " are,");
+    }
 }

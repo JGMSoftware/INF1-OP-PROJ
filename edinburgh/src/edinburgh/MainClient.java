@@ -41,7 +41,10 @@ public class MainClient extends javax.swing.JFrame {
     private static MessageObj incoming;
     private static String remoteAddress = "";
     private static int messagesSent = 0;
-    private boolean autoCorrect = true;
+    private boolean autoCorrect = false;
+    private boolean annoying = true;
+    private int failed = 0;
+    private static boolean validAddress = false;
 
     /**
      * Creates new form GUI
@@ -81,7 +84,9 @@ public class MainClient extends javax.swing.JFrame {
         exitApp = new javax.swing.JMenuItem();
         getUserApp = new javax.swing.JMenuItem();
         changeNameApp = new javax.swing.JMenuItem();
+        annoyingApp = new javax.swing.JMenuItem();
         autoCorrectApp = new javax.swing.JMenuItem();
+        wordStatsApp = new javax.swing.JMenuItem();
         appPreferences = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
 
@@ -135,6 +140,14 @@ public class MainClient extends javax.swing.JFrame {
         });
         jMenu1.add(changeNameApp);
 
+        wordStatsApp.setText("Word statistics");
+        wordStatsApp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                wordStatsAppActionPerformed(evt);
+            }
+        });
+        jMenu1.add(wordStatsApp);
+
         autoCorrectApp.setText("Auto correct");
         autoCorrectApp.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -142,6 +155,14 @@ public class MainClient extends javax.swing.JFrame {
             }
         });
         jMenu1.add(autoCorrectApp);
+
+        annoyingApp.setText("Annoying mode");
+        annoyingApp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                annoyingAppActionPerformed(evt);
+            }
+        });
+        jMenu1.add(annoyingApp);
 
         getUserApp.setText("Who is in?");
         getUserApp.addActionListener(new java.awt.event.ActionListener() {
@@ -218,36 +239,52 @@ public class MainClient extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(this, "Not yet implemented.");
     }
 
+    //Triggered by the exit menu button
     private void exitAppActionPerformed(java.awt.event.ActionEvent evt) {
         closeWindow();
     }
 
+    //Triggered by the get users menu button
     private void getUserAppActionPerformed(java.awt.event.ActionEvent evt) {
         getUsers();
     }
 
+    //Triggered by the change name menu button
     private void changeNameAppActionPerformed(java.awt.event.ActionEvent evt) {
-        String newName;
+        String newName = "";
         newName = JOptionPane.showInputDialog("Choose a new username");
-        while (newName.equals("")) {
-            newName = JOptionPane.showInputDialog("You must enter a name!");
+        if (newName != null) {
+            if (!newName.equals("")) {
+                changeName(newName);
+                username = newName;
+            }
         }
-        username = newName;
-        titleLbl.setText("Chat Client" + "  -  " + username);
-        changeName(username);
+
     }
 
+    //Activates the auto correct mode
+    private void activateAutoCorrect() {
+        autoCorrect = true;
+        annoying = false;
+        failed = 0;
+    }
+
+    //Triggered by the auto correct menu button
     private void autoCorrectAppActionPerformed(java.awt.event.ActionEvent evt) {
         int response = JOptionPane.showConfirmDialog(this, "Would you like to run the client with autocorrect mode active?");
-
-        if (response == 0) {
-            autoCorrect = true;
-        }
-        if (response == 1) {
-            autoCorrect = false;
+        switch (response) {
+            case 0:
+                activateAutoCorrect();
+                break;
+            case 1:
+                autoCorrect = false;
+                break;
+            case 2:
+                break;
         }
     }
 
+    //Sends a logout message to the server and closes the window
     private void closeWindow() {
         //Send a disconnect message to the server
         MessageObj disconnect = new MessageObj(2, null, null, null);
@@ -256,18 +293,69 @@ public class MainClient extends javax.swing.JFrame {
         System.exit(0);
     }
 
+    //Triggered by the Annoying mode menu object
+    private void annoyingAppActionPerformed(java.awt.event.ActionEvent evt) {
+        int response = JOptionPane.showConfirmDialog(this, "Would you like to run the client in the annoying mode?");
+
+        switch (response) {
+            case 0:
+                annoying = true;
+                autoCorrect = false;
+                break;
+            case 1:
+                annoying = false;
+                break;
+            case 2:
+                break;
+        }
+    }
+
+    //Triggered by the Word stats menu object
+    private void wordStatsAppActionPerformed(java.awt.event.ActionEvent evt) {
+        System.out.println("Hello WordStats!");
+    }
+
+    //Triggered when the user presses the send button
     private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {
         time = Calendar.getInstance();
         timestamp = timeFormat.format(time.getTime());
         //Create a message from user details and message text
-        MessageObj message = new MessageObj(1, messageTextBox.getText(), timestamp, username);
+        message = new MessageObj(1, messageTextBox.getText(), timestamp, username);
 
-        if (autoCorrect) {
-            message.setMsgText(correct(message.getMsgText()));
+        if (!(message.getMsgText().equals(""))) {
+            if (annoying) {
+                if (goodGrammar(message.getMsgText())) {
+                    sendMessage(message);
+                    messageTextBox.setText("");
+                    failed = 0;
+                } else {
+                    JOptionPane.showMessageDialog(this, "Your spelling is not good enough, please try again");
+                    failed++;
+                }
+
+            } else {
+                if (autoCorrect) {
+                    message.setMsgText(correct(message.getMsgText()));
+                }
+                sendMessage(message);
+                messageTextBox.setText("");
+            }
+            if (failed >= 3) {
+                int response = JOptionPane.showConfirmDialog(this, "You seem to have some problem with your spelling, would you like to turn on the auto correction?");
+                switch (response) {
+                    case 0:
+                        activateAutoCorrect();
+                        failed = 0;
+                        break;
+                    case 1:
+                        failed = 0;
+                        break;
+                    case 2:
+                        failed = 0;
+                        break;
+                }
+            }
         }
-
-        sendMessage(message);
-        messageTextBox.setText("");
     }
 
     /**
@@ -302,12 +390,18 @@ public class MainClient extends javax.swing.JFrame {
 
         //Prompt for the name of the computer where the server is running
         remoteAddress = JOptionPane.showInputDialog("Enter the name of the computer you want to connect to");
+        evaluateAddress();
+        while (!validAddress) {
+            remoteAddress = JOptionPane.showInputDialog("You must enter a valid hostname");
+            evaluateAddress();
+        }
 
         //Prompt for username until at lest one character is entered
         username = JOptionPane.showInputDialog("Enter username:");
-        int asked = 1;
+        evaluateUsername();
         while (username.equals("")) {
             username = JOptionPane.showInputDialog("You must choose a username!");
+            evaluateUsername();
         }
 
         //Open a new socket to the server
@@ -315,18 +409,50 @@ public class MainClient extends javax.swing.JFrame {
         connect();
         login();
         listen();
-
     }
 
+    //Closes the program if the username is null
+    private static void evaluateUsername() {
+        boolean isNull = !(username != null);
+        if (isNull) {
+            System.exit(0);
+        }
+    }
+
+    //Closes the program if the address is null, otherwise checks that the string is not empty and contains only letters
+    private static void evaluateAddress() {
+        boolean notNull = (remoteAddress != null);
+        if (notNull) {
+            boolean nonEmpty = !(remoteAddress.equals(""));
+            boolean containsOnlyLetters = true;
+            for (int i = 0; i < remoteAddress.length() && containsOnlyLetters; i++) {
+                containsOnlyLetters = Character.isLetter(remoteAddress.charAt(i));
+            }
+            validAddress = notNull && nonEmpty && containsOnlyLetters;
+        } else {
+            System.exit(0);
+        }
+    }
+
+    //Checks if a string is capitalised and written using correct words
+    private boolean goodGrammar(String message) {
+        if (message.equals(correct(message))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    //Swaps any known acronyms or misspellings to a proper word and then capitalises the string.
     private String correct(String msg) {
         for (String s : abbreviations) {
             msg = msg.replace(s, replacer.get(s));
         }
-
         msg = capitalise(msg);
         return msg;
     }
 
+    //Changes the firt character of a string to uppercase if it is a lowercase letter
     private String capitalise(String msg) {
         if (Character.isLetter(msg.charAt(0)) && Character.isLowerCase(msg.charAt(0))) {
             msg = Character.toUpperCase(msg.charAt(0)) + msg.substring(1);
@@ -335,21 +461,25 @@ public class MainClient extends javax.swing.JFrame {
         return msg;
     }
 
+    //Changes your username
     private void changeName(String username) {
         MessageObj namechanger = new MessageObj(3, null, null, username);
         sendMessage(namechanger);
     }
 
+    //Requests a list of currently logged in users from the server
     private void getUsers() {
         MessageObj nameRequester = new MessageObj(0, null, null, null);
         sendMessage(nameRequester);
     }
 
+    //Sends a login message to the server telling the server that you have connected
     private static void login() {
         MessageObj loginMsg = new MessageObj(4, null, null, username);
         sendMessage(loginMsg);
     }
 
+    //Listen for incoming messages
     private static void listen() throws IOException {
 
         while (true) {
@@ -369,19 +499,22 @@ public class MainClient extends javax.swing.JFrame {
         try {
             //1. creating a socket to connect to the server
             requestSocket = new Socket(remoteAddress, 2004);
-            System.out.println("Connected to localhost in port 2004");
+            System.out.println("Connected to " + remoteAddress + " in port 2004");
             //2. get Input and Output streams
             out = new ObjectOutputStream(requestSocket.getOutputStream());
             out.flush();
             in = new ObjectInputStream(requestSocket.getInputStream());
 
         } catch (UnknownHostException unknownHost) {
-            System.err.println("You are trying to connect to an unknown host!");
+            System.err.println("You are trying to connect to an unknown host, please check your hostname and run the client again.");
+            System.exit(0);
         } catch (IOException ioException) {
-            ioException.printStackTrace();
+            System.err.println("Connection was refused by the hostname, please check your hostname and run the client again.");
+            System.exit(0);
         }
     }
 
+    //Close all streams and the socket
     public static void disconnect() {
         try {
             in.close();
@@ -392,6 +525,7 @@ public class MainClient extends javax.swing.JFrame {
         }
     }
 
+    //Send a message to the server
     public static void sendMessage(MessageObj msg) {
         try {
             out.writeObject(msg);
@@ -408,6 +542,8 @@ public class MainClient extends javax.swing.JFrame {
     private javax.swing.JMenuItem getUserApp;
     private javax.swing.JMenuItem changeNameApp;
     private javax.swing.JMenuItem autoCorrectApp;
+    private javax.swing.JMenuItem annoyingApp;
+    private javax.swing.JMenuItem wordStatsApp;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem2;
@@ -419,15 +555,15 @@ public class MainClient extends javax.swing.JFrame {
     private javax.swing.JLabel wordCountLbl;
     private javax.swing.JLabel wordCountNum;
     // End of variables declaration
-    
-    private String[] abbreviations = {"thx", "btw", "omg", "afk", "asap", "msg",
-                                      " u ", " u.", " u?", " u!", " u,",
-                                      " i ", " i.", " i?", " i!", " i,", " im ",
-                                      " r ", " r.", " r?", " r!", " r,",
-    };
-    
+    //List of common abbreviations and acronyms that will be replaced by auto correct
+    private String[] abbreviations = {
+        "thx", "btw", "omg", "afk", "asap", "msg",
+        " u ", " u.", " u?", " u!", " u,",
+        " i ", " i.", " i?", " i!", " i,", " im ",
+        " r ", " r.", " r?", " r!", " r,",};
     private static HashMap<String, String> replacer = new HashMap();
 
+    //Sets the HashMap to map each element in 'abbreviations' to the replacing word
     private static void setMap() {
         replacer.put("thx", "thanks");
         replacer.put("btw", "by the way");
@@ -435,20 +571,20 @@ public class MainClient extends javax.swing.JFrame {
         replacer.put("afk", "away from keyboard");
         replacer.put("asap", "as soon as possible");
         replacer.put("msg", "message");
-        
+
         replacer.put(" u ", " you ");
         replacer.put(" u.", " you.");
         replacer.put(" u?", " you?");
         replacer.put(" u!", " you!");
         replacer.put(" u,", " you,");
-        
+
         replacer.put(" i ", " I ");
         replacer.put(" i.", " I.");
         replacer.put(" i?", " I?");
         replacer.put(" i!", " I!");
         replacer.put(" i,", " I,");
         replacer.put(" im ", " I'm ");
-        
+
         replacer.put(" r ", " are ");
         replacer.put(" r.", " are.");
         replacer.put(" r?", " are?");

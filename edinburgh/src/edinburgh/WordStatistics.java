@@ -5,9 +5,9 @@ import java.util.HashMap;
 
 public class WordStatistics {
 
-    ArrayList<String> words;
-    HashMap<String, Integer> statsMap=new HashMap();
-        String statistics;
+   private ArrayList<String> words;
+   private HashMap<String, Integer> statsMap=new HashMap();
+   private     String statistics;
 
     public WordStatistics() {
         words=new ArrayList();
@@ -16,6 +16,21 @@ public class WordStatistics {
     public WordStatistics sortWords (){
         return sortWords (this);
             }
+    
+    public int getCount(String word){
+        return statsMap.get(word);
+    }
+    
+        public String getStats() {
+        String output="";
+       
+        if (!words.isEmpty()) {
+            for(String word: words){
+            statistics = statistics + "\n " + word + " used " + statsMap.get(word) + " times";
+        }
+           }
+        return output;
+    }
 
     public static WordStatistics sortWords(WordStatistics stats){
         System.out.println(stats.words.size());
@@ -89,8 +104,11 @@ public class WordStatistics {
         String[] words = str.split(" "); //split string into words
         for (int i = 0; i < words.length; i++) {
             String strippedWord = (words[i].replaceAll("\\W", ""));//removes all non-alphanumeric characters.
-            //Need to decapitalize the "strippedWord" here as well
-            addWord(strippedWord);
+            String out="";
+          for(int x=0;x<strippedWord.length();x++){
+             out=out+Character.toLowerCase(strippedWord.charAt(x)); //decapitalises each letter
+          }
+addWord(out);
         }
      }
      
@@ -110,20 +128,11 @@ if (!statsMap.containsKey(toPrint)) {
         System.out.println("\"" + toPrint + "\"" + " was used " + statsMap.get(toPrint) + " times");
     }
 
-    public String returnStats() {
-        String output="";
-       
-        if (!words.isEmpty()) {
-            for(String word: words){
-            statistics = statistics + "\n " + word + " used " + statsMap.get(word) + " times";
-        }
-           }
-        return output;
-    }
+
     
     public static void main (String[] args){
         WordStatistics wordies = new WordStatistics();
-        wordies.addString("hello hello hello hi, why how are are you you you you you, this this is is a a a a a a test test test");
+        wordies.addString("Hello hello hello hi, why how are are you you you you you, this this is is a a a a a a test test test");
      // wordies.printStatsTerminal();
         wordies.sortWords().printStatsTerminal();
     }

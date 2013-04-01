@@ -45,7 +45,7 @@ public class MainClient extends javax.swing.JFrame {
     private boolean annoying = true;
     private int failed = 0;
     private static boolean validAddress = false;
-    private static WordStatistics wordStats;
+    private static WordStatistics wordStats=new WordStatistics();
 
     /**
      * Creates new form GUI
@@ -300,7 +300,10 @@ public class MainClient extends javax.swing.JFrame {
 
     //Triggered by the Word stats menu object
     private void wordStatsAppActionPerformed(java.awt.event.ActionEvent evt) {
-    chatText.append(wordStats.getStats());
+    //    System.out.println("test");
+    //   System.out.println(wordStats.getStats());
+    chatText.append("System: ");
+    chatText.append(wordStats.sortWords().getStats());
     }
 
     //Triggered when the user presses the send button
@@ -518,11 +521,13 @@ public class MainClient extends javax.swing.JFrame {
         try {
             
             if (msg.getMsgType()==1){
-                wordStats.addString(msg.getMsgText());
-            }
+               String s=msg.getMsgText();
+               System.out.println(msg.getMsgText());
+                wordStats.addString(s);
+                                 }
             out.writeObject(msg);
             out.flush();
-            //chatText.append(msg.makeString() + "\n");
+            ;
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }

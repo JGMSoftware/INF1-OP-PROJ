@@ -7,7 +7,7 @@ public class WordStatistics {
 
    private ArrayList<String> words;
    private HashMap<String, Integer> statsMap=new HashMap();
-   private     String statistics;
+   private     String statistics=new String("");
 
     public WordStatistics() {
         words=new ArrayList();
@@ -22,14 +22,14 @@ public class WordStatistics {
     }
     
         public String getStats() {
-        String output="";
+        
        
         if (!words.isEmpty()) {
             for(String word: words){
             statistics = statistics + "\n " + word + " used " + statsMap.get(word) + " times";
         }
            }
-        return output;
+        return statistics;
     }
 
     public static WordStatistics sortWords(WordStatistics stats){
@@ -100,10 +100,9 @@ public class WordStatistics {
     }
 
      public void addString(String str) {
-      
-        String[] words = str.split(" "); //split string into words
-        for (int i = 0; i < words.length; i++) {
-            String strippedWord = (words[i].replaceAll("\\W", ""));//removes all non-alphanumeric characters.
+                   String[] w = str.split(" "); //split string into words
+        for (int i = 0; i < w.length; i++) {
+            String strippedWord = (w[i].replaceAll("\\W", ""));//removes all non-alphanumeric characters.
             String out="";
           for(int x=0;x<strippedWord.length();x++){
              out=out+Character.toLowerCase(strippedWord.charAt(x)); //decapitalises each letter
@@ -132,8 +131,8 @@ if (!statsMap.containsKey(toPrint)) {
     
     public static void main (String[] args){
         WordStatistics wordies = new WordStatistics();
-        wordies.addString("Hello hello hello hi, why how are are you you you you you, this this is is a a a a a a test test test");
-     // wordies.printStatsTerminal();
-        wordies.sortWords().printStatsTerminal();
+        String s = new String("Hello hello hello hi, why how are are you you you you you, this this is is a a a a a a test test test");
+   wordies.addString(s);
+   System.out.println(wordies.getStats());
     }
 }

@@ -45,6 +45,7 @@ public class MainClient extends javax.swing.JFrame {
     private boolean annoying = true;
     private int failed = 0;
     private static boolean validAddress = false;
+    private static WordStatistics wordStats;
 
     /**
      * Creates new form GUI
@@ -230,9 +231,9 @@ public class MainClient extends javax.swing.JFrame {
 
     //Update the word count every time a new word is entered into the text box
     private void messageTextBoxKeyPressed(java.awt.event.KeyEvent evt) {
-        String message = messageTextBox.getText();
-        int wordCount = WordCounter.wordCount(message);
-        wordCountNum.setText(wordCount + "");
+        //String message = messageTextBox.getText();
+       // int wordCount = WordCounter.wordCount(message);
+     //   wordCountNum.setText(wordCount + "");
     }
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {
@@ -312,7 +313,7 @@ public class MainClient extends javax.swing.JFrame {
 
     //Triggered by the Word stats menu object
     private void wordStatsAppActionPerformed(java.awt.event.ActionEvent evt) {
-        System.out.println("Hello WordStats!");
+    chatText.append(wordStats.getStats());
     }
 
     //Triggered when the user presses the send button
@@ -528,6 +529,10 @@ public class MainClient extends javax.swing.JFrame {
     //Send a message to the server
     public static void sendMessage(MessageObj msg) {
         try {
+            
+            if (msg.getMsgType()==1){
+                wordStats.addString(msg.getMsgText());
+            }
             out.writeObject(msg);
             out.flush();
             //chatText.append(msg.makeString() + "\n");

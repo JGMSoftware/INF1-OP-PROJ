@@ -76,10 +76,8 @@ public class MainClient extends javax.swing.JFrame {
         messageTextBox = new javax.swing.JTextField();
         sendButton = new javax.swing.JButton();
         titleLbl = new javax.swing.JLabel();
-        wordCountLbl = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
         chatText = new javax.swing.JTextArea();
-        wordCountNum = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         exitApp = new javax.swing.JMenuItem();
@@ -113,13 +111,9 @@ public class MainClient extends javax.swing.JFrame {
         titleLbl.setForeground(new java.awt.Color(102, 102, 102));
         titleLbl.setText("Chat Client");
 
-        wordCountLbl.setText("Word Count:");
-
         chatText.setColumns(20);
         chatText.setRows(5);
         jScrollPane3.setViewportView(chatText);
-
-        wordCountNum.setText("0");
 
         jMenu1.setText("File");
 
@@ -205,9 +199,7 @@ public class MainClient extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addComponent(titleLbl)
                 .addGroup(layout.createSequentialGroup()
-                .addComponent(wordCountLbl)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(wordCountNum)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
                 .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap()));
         layout.setVerticalGroup(
@@ -221,9 +213,7 @@ public class MainClient extends javax.swing.JFrame {
                 .addComponent(jScrollPane2)
                 .addComponent(sendButton, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(wordCountLbl)
-                .addComponent(wordCountNum))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
 
         pack();
@@ -231,9 +221,6 @@ public class MainClient extends javax.swing.JFrame {
 
     //Update the word count every time a new word is entered into the text box
     private void messageTextBoxKeyPressed(java.awt.event.KeyEvent evt) {
-        //String message = messageTextBox.getText();
-       // int wordCount = WordCounter.wordCount(message);
-     //   wordCountNum.setText(wordCount + "");
     }
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {
@@ -557,8 +544,6 @@ public class MainClient extends javax.swing.JFrame {
     private javax.swing.JTextField messageTextBox;
     private javax.swing.JButton sendButton;
     private javax.swing.JLabel titleLbl;
-    private javax.swing.JLabel wordCountLbl;
-    private javax.swing.JLabel wordCountNum;
     // End of variables declaration
     //List of common abbreviations and acronyms that will be replaced by auto correct
     private String[] abbreviations = {

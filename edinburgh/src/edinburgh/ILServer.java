@@ -13,7 +13,6 @@ public class ILServer implements Runnable {
 
     private static List<ILServer> users = new ArrayList();
     private static HashMap<InetAddress, String> usernames = new HashMap();
-    private static HashMap<InetAddress, WordStatistics> wordStats = new HashMap();
     ObjectOutputStream out;
     ObjectInputStream in;
     private Socket connection;
@@ -43,11 +42,6 @@ public class ILServer implements Runnable {
             try {
                 incoming = (MessageObj) in.readObject();
                 takeAction(incoming, address, out);
-            
-                if (incoming.getMsgType()==1){
-               updateWordStats(incoming.getMsgText(), address);          
-        //  sendMessage (wordStats.get(address).returnStats());
-               }
                 
                 if (incoming.getMsgType() == 2) {
                     in.close();
@@ -174,13 +168,5 @@ public class ILServer implements Runnable {
         catch (IOException crash) {
             System.out.println("The server crashed due to the following exception: " + crash);
         }
-    }
-
-    private void updateWordStats(String msgText, InetAddress address) {
-    WordStatistics stats=new WordStatistics();
-    if(wordStats.get(address)!=null) stats=wordStats.get(address);
-      stats.addString(msgText);
-      stats.printStats();
-    wordStats.put(address, stats);
     }
 }
